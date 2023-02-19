@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const filesystem = require('fs');
 const multerS3 = require('multer-s3');
+const utils = require('./utils')
 
 const app = express();
 const fetch = multer({dest: __dirname + '/upload_images'})
@@ -13,15 +14,15 @@ const port = 3000;
 
 // Configure AWS credentials
 AWS.config.update({
-        accessKeyId: 'AKIA6JVW3PXOAANILSLQ',
-        secretAccessKey: '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',
+        accessKeyId: aws_accessKeyId,
+        secretAccessKey: aws_secretAccessKey,
         region: 'us-east-1'
 });
 
 // Configure S3 bucket
 const s3 = new AWS.S3({
         region: 'us-east-1',
-        params: { Bucket: 'web-tier546' }
+        params: { Bucket: webtier_bucket }
 });
 
 const sqs = new AWS.SQS();
@@ -30,7 +31,7 @@ const sqs = new AWS.SQS();
 const upload = multer({
         storage: multerS3({
           s3: s3,
-          bucket: 'web-tier546',
+          bucket: webtier_bucket,
           acl: 'public-read',
           metadata: function (req, file, cb) {
                 cb(null, {fieldName: file.fieldname});
