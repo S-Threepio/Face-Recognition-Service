@@ -11,6 +11,7 @@ const {
   webtier_bucket,
 } = require("./utils");
 
+const {v4:uuidv4} = require('uuid');
 const app = express();
 const fetch = multer({ dest: __dirname + "/upload_images" });
 const port = 3000;
@@ -52,9 +53,9 @@ app.post("/", upload.single("myfile"), (req, res, next) => {
 
   const request_params = {
     MessageBody: JSON.stringify(message),
-    QueueUrl: "https://sqs.us-east-1.amazonaws.com/982857252316/Request.fifo",
-    MessageGroupId: "imageData",
-    MessageDeduplicationId: "imageDataDuplication",
+    QueueUrl: "https://sqs.us-east-1.amazonaws.com/246374075524/Request.fifo",
+    MessageGroupId: '123',
+    MessageDeduplicationId: uuidv4(),
   };
   sqs.sendMessage(request_params, (err, data) => {
     if (err) {
@@ -65,7 +66,7 @@ app.post("/", upload.single("myfile"), (req, res, next) => {
   });
 
   const respose_params = {
-    QueueUrl: "https://sqs.us-east-1.amazonaws.com/982857252316/Response.fifo",
+    QueueUrl: "https://sqs.us-east-1.amazonaws.com/246374075524/Response.fifo",
     WaitTimeSeconds: 10, // Set the maximum wait time for the poll
     MaxNumberOfMessages: 1, // Set the maximum number of messages to retrieve in a single poll
     AttributeNames: ["All"],
@@ -88,7 +89,7 @@ app.post("/", upload.single("myfile"), (req, res, next) => {
       
       const deleteParams = {
         QueueUrl:
-          "https://sqs.us-east-1.amazonaws.com/982857252316/Response.fifo",
+          "https://sqs.us-east-1.amazonaws.com/246374075524/Response.fifo",
         Entries: data.Messages.map((message) => {
           return {
             Id: message.MessageId,
