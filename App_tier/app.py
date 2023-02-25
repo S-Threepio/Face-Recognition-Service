@@ -12,13 +12,13 @@ import sys
 import time
 import boto3
 
-
 def write_to_S3(body, key):
     s3 = boto3.client("s3")
-    s3.put_object(Body=body, Bucket="app-tier", Key=key + ".txt")
+    s3.put_object(Body=body, Bucket="cse546-apptier", Key=key + ".txt")
+    print("success")
 
 
-def classify_image(url):
+def classify_image(url,id):
     # url = str(sys.argv[1])
     img = Image.open(urlopen(url))
     # img = Image.open(url)
@@ -39,8 +39,10 @@ def classify_image(url):
     save_name = f"({img_name},{result})"
     print(f"{save_name}")
     write_to_S3(save_name, img_name)
-    output = {"name": img, "output": result}
+    output = {"name": img, "output": result,"id":id}
     return json.dumps(output)
+
+
 
 
 sqs = boto3.resource("sqs", region_name="us-east-1")
@@ -56,8 +58,8 @@ while 1:
         break
     for msg in messages:
         print("Received url: ", msg.body)
-        # body = json.loads(msg.body)
-        result = classify_image(msg.body)
+        body = json.loads(msg.body)
+        result = classify_image(body["url"],body["id"])
         response = response_fifo.send_message(
             MessageBody=result, MessageGroupId="imageData"
         )
