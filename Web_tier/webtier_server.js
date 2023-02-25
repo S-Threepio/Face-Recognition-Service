@@ -114,7 +114,7 @@ app.post("/", upload.single("myfile"), async (req, res, next) => {
     if (responseCache.hasOwnProperty(id)) {
       console.log(`Returning cached response for id ${id}`);
       clearInterval(intervalId);
-      res.json(responseCache[id]);
+      res.json(req.file.originalname + ':' + responseCache[id]);
     }
   }, 1000);
 });
